@@ -1,5 +1,9 @@
+import time
+global isRunning
+
 username = ""
-stats = [0,0,0,0,0] #wins, beds broken, beds lost, final kills, final deaths
+global stats
+stats = [0,0,0,0,0,0] #wins, losses beds broken, beds lost, final kills, final deaths
 game_status = 0
 win_list = []
 
@@ -8,15 +12,6 @@ FK_keyword = ". FINAL KILL!"
 FD_keyword = "You have been eliminated!"
 BD_keyword = "Bed was " 
 BL_keyword = "BED DESTRUCTION > Your Bed"
-
-def display_stats():
-    print("========== Session Stats ===========")
-    print(f"Wins          : {stats[0]}")
-    print(f"Beds Broken   : {stats[1]}")
-    print(f"Beds Lost     : {stats[2]}")
-    print(f"Final Kills   : {stats[3]}")
-    print(f"Final Deaths  : {stats[4]}")
-    print("====================================\n")
     
 def find_Win():
     has_BW = any("Bed Wars" in line for line in win_list)
@@ -26,16 +21,18 @@ def find_Win():
 
 
 def start_Tracker():
+    isRunning = True
     global username, game_status
-
-    username = input("Enter your username: ")
-    display_stats()
 
     file = open('C:/Users/ethan/AppData/Roaming/.minecraft/logs/blclient/minecraft/latest.log', 'r')
     file.seek(0, 2)
-    while True:
+
+    while isRunning == True:
+
+        time.sleep(1)
 
         for line in file:
+            print(username)
             win_list.append(line)
             if len(win_list) > 15:
                 win_list.pop(0)
@@ -46,33 +43,31 @@ def start_Tracker():
 
             elif game_status == 1 and ("joined the lobby!" in line or "Sending you to" in line):
                 game_status = 0
+                stats[1] += 1
                 print("Game ended!")
 
             elif FK_keyword in line and username in line:
                 print(line)
-                stats[3] += 1
-                display_stats()
+                stats[4] += 1
 
             elif FD_keyword in line:
                 print(line)
-                stats[4] += 1
-                display_stats()
+                stats[5] += 1
 
             elif BD_keyword in line and username in line:
                 print(line)
-                stats[1] += 1
-                display_stats()
+                stats[2] += 1
 
             elif BL_keyword in line:
                 print(line)
-                stats[2] += 1
-                display_stats()
+                stats[3] += 1
 
             elif find_Win():
                 print("WIN DETECTED!")
                 stats[0] += 1
-                display_stats()
                 game_status = 0
                 win_list.clear()
+
+    print("Tracker stopped.")
         
 
