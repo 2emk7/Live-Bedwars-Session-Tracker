@@ -1,4 +1,4 @@
-username = None
+username = ""
 stats = [0,0,0,0,0] #wins, beds broken, beds lost, final kills, final deaths
 game_status = 0
 win_list = []
@@ -10,7 +10,7 @@ BD_keyword = "Bed was "
 BL_keyword = "BED DESTRUCTION > Your Bed"
 
 def display_stats():
-    print("========== Minecraft Stats ==========")
+    print("========== Session Stats ===========")
     print(f"Wins          : {stats[0]}")
     print(f"Beds Broken   : {stats[1]}")
     print(f"Beds Lost     : {stats[2]}")
@@ -24,10 +24,12 @@ def find_Win():
     has_1st = any("1st Killer" in line for line in win_list)
     return has_username and has_BW and has_1st
 
-display_stats()
 
 def start_Tracker():
+    global username, game_status
+
     username = input("Enter your username: ")
+    display_stats()
 
     file = open('C:/Users/ethan/AppData/Roaming/.minecraft/logs/blclient/minecraft/latest.log', 'r')
     file.seek(0, 2)
