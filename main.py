@@ -1,8 +1,10 @@
 import sys
 import getstats
+import json
 from PySide6.QtWidgets import QApplication, QWidget
 from PySide6.QtCore import QTimer
-from GUI import Ui_Form
+from BWSphereHomepage import Ui_HomePage
+from BWSphereSettingsPage import Ui_SettingsPage
 from threading import Thread
 
 
@@ -10,17 +12,24 @@ class MainWindow(QWidget):
     def __init__(self):
 
         super().__init__()
-        self.ui = Ui_Form()
+        self.ui = Ui_HomePage()
         self.ui.setupUi(self)
 
         self.tracker_thread = None
 
         self.ui.EnterNameBox.textChanged.connect(self.username_changed)
         self.ui.ResetButton.clicked.connect(self.reset_pressed)
+        self.ui.settingsButton.clicked.connect(self.settings_pressed)
 
         self.update_timer = QTimer(self)
         self.update_timer.timeout.connect(self.update_stats)
         self.update_timer.start(500) 
+
+
+    def settings_pressed(self):
+        print("Settings button pressed")
+        self.settings_window = SettingsWindow()
+        self.settings_window.show()
 
 
     def reset_pressed(self):
@@ -28,7 +37,6 @@ class MainWindow(QWidget):
         self.ui.EnterNameBox.clear()
         getstats.win_list.clear()
         getstats.game_status = 0
-        getstats.isRunning = False
         print("Stats reset")
     
     def update_stats(self):
@@ -51,7 +59,6 @@ class MainWindow(QWidget):
     def username_changed(self, text):
         getstats.username = text.strip()
 
-        #start tracker
         if getstats.username and self.tracker_thread is None:
             getstats.isRunning = True
             self.tracker_thread = Thread(
@@ -64,6 +71,28 @@ class MainWindow(QWidget):
         print("GUI is closing!")
         getstats.isRunning = False
         event.accept()
+
+def update_log_file_location(text):
+    with open("settings.json", "r+") as f:
+        settings_file = json.load(f)
+
+        getstats.log_file_location = text
+        settings_file["log_file_location"] = text
+        print(settings_file["log_file_location"], "hi")
+        print(getstats.log_file_location)
+
+        f.seek(0)
+        json.dump(settings_file, f, indent=4)
+        f.truncate()
+
+class SettingsWindow(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.ui = Ui_SettingsPage()
+        self.ui.setupUi(self)
+
+        self.ui.lineEdit.textChanged.connect(update_log_file_location)
+
 
 
 def main():

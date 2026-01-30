@@ -1,8 +1,12 @@
 import time
+import json
 global isRunning
+global stats
+global log_file_location
+global settings_file
+
 
 username = ""
-global stats
 stats = [0,0,0,0,0,0] #wins, losses beds broken, beds lost, final kills, final deaths
 game_status = 0
 win_list = []
@@ -20,18 +24,28 @@ def find_Win():
     return has_username and has_BW and has_1st
 
 
+    
+
 def start_Tracker():
+    with open("settings.json", "r+") as f:
+        settings_file = json.load(f)
+
+        log_file_location = settings_file["log_file_location"]
+
     isRunning = True
     global username, game_status
 
-    file = open('C:/Users/ethan/AppData/Roaming/.minecraft/logs/blclient/minecraft/latest.log', 'r')
+    file = open(log_file_location, 'r')
     file.seek(0, 2)
+    print(username,"2")
 
     while isRunning == True:
 
         time.sleep(1)
+        print(username, "1")
 
         for line in file:
+
             print(username)
             win_list.append(line)
             if len(win_list) > 15:
